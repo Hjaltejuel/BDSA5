@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BDSA2017.Assignment05.Entities;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace BDSA2017.Assignment05
 {
@@ -6,7 +8,7 @@ namespace BDSA2017.Assignment05
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+
         }
     }
 }

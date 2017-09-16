@@ -21,7 +21,8 @@ public interface IRaceRepository : IDisposable
     IEnumerable<RaceListDTO> Read();
     RaceCreateDTO Read(int raceId);
     (bool ok, string error) Update(RaceCreateDTO race);
-    (bool ok, string error) AddCarToRace(int carId, int raceId);
+    (bool ok, string error) AddCarToRace(int carId, int raceId, int? startPosition = null);
+    (bool ok, string error) UpdateCarInRace(RaceCarDTO car);
     (bool ok, string error) RemoveCarFromRace(int carId, int raceId);
     (bool ok, string error) Delete(int raceId);
 }
