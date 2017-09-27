@@ -11,7 +11,7 @@ namespace BDSA2017.Assignment05.Entities
         {
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json")
+                .AddJsonFile(@"C:\Users\Michelle\source\repos\BDSA2017.Assignment05\BDSA2017.Assignment05\appsettings.json")
                 .Build();
 
             var builder = new DbContextOptionsBuilder<SlotCarContext>();
