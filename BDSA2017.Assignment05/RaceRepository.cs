@@ -89,12 +89,46 @@ namespace BDSA2017.Assignment05
 
         public IEnumerable<RaceListDTO> Read()
         {
-            throw new NotImplementedException();
+            foreach (Race race in context.Races) {
+
+                var carInRaces = from carInRace in context.CarsInRace
+                                 where carInRace.Race == race
+                                 orderby carInRace.TotalTime
+                                 select carInRace;
+
+                RaceListDTO raceList = new RaceListDTO
+                {
+                    Id = race.Id,
+                    End = race.ActualEnd ?? race.PlannedEnd,
+                    Start = race.ActualStart ?? race.PlannedStart,
+                    TrackName = race.Track.Name,
+                    MaxCars = race.Track.MaxCars,
+                    NumberOfLaps = race.NumberOfLaps,
+                    NumberOfCars = carInRaces.Count(),
+                    WinningCar = carInRaces.FirstOrDefault().Car.Name,
+                    WinningDriver = carInRaces.FirstOrDefault().Car.Driver
+                };
+                yield return raceList;
+            }
         }
 
         public RaceCreateDTO Read(int raceId)
         {
-            throw new NotImplementedException();
+                Race race = context.Races.Find(raceId);
+
+                 RaceCreateDTO raceList = new RaceCreateDTO
+                {
+                ActualEnd = race.ActualEnd,
+                ActualStart = race.ActualStart,
+                Id = race.Id,
+                NumberOfLaps = race.NumberOfLaps,
+                PlannedEnd = race.PlannedEnd,
+                PlannedStart = race.PlannedStart,
+                TrackId = race.TrackId
+                
+                };
+                return raceList;
+            
         }
 
         public (bool ok, string error) RemoveCarFromRace(int carId, int raceId)
@@ -121,12 +155,41 @@ namespace BDSA2017.Assignment05
 
         public (bool ok, string error) Update(RaceCreateDTO race)
         {
-            throw new NotImplementedException();
+            Race choosen = (from races in context.Races
+                            where races.Id == race.Id
+                            select races).FirstOrDefault();
+            if (choosen != null)
+            {
+                choosen.ActualStart = race.ActualStart;
+                choosen.ActualEnd = race.ActualEnd;
+                choosen.PlannedEnd = race.PlannedEnd;
+                choosen.PlannedStart = race.PlannedStart;
+                choosen.TrackId = race.TrackId;
+                choosen.NumberOfLaps = race.NumberOfLaps;
+                context.SaveChanges();
+                return (true, "");
+            }
+            return (false, "no race found");
+
         }
 
         public (bool ok, string error) UpdateCarInRace(RaceCarDTO car)
         {
-            throw new NotImplementedException();
+            CarInRace toBeUpdated = (from races in context.CarsInRace
+                                     where races.CarId == car.CarId && races.RaceId == car.RaceId
+                                     select races).FirstOrDefault();
+            if(toBeUpdated!= null)
+            {
+                toBeUpdated.FastestLap = car.FastestLap;
+                toBeUpdated.EndPosition = car.EndPosition;
+                toBeUpdated.CarId = car.CarId;
+                toBeUpdated.RaceId = car.RaceId;
+                toBeUpdated.StartPosition = car.StartPosition;
+                toBeUpdated.TotalTime = car.TotalTime;
+                context.SaveChanges();
+                return (true, "");
+            }
+            return (false, "no Car In Race found");
         }
     }
 }
