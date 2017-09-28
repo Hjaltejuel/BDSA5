@@ -8,17 +8,21 @@ using System.Linq;
 using BDSA2017.Assignment05.DTOs;
 using BDSA2017.Assignment05.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 
 namespace BDSA2017.Assignment05
 {
     public class RaceRepository : IRaceRepository
     {
-        DesignTimeDbContextFactory contextBuilder = new DesignTimeDbContextFactory();
-        public (bool ok, string error) AddCarToRace(int carId, int raceId, int? startPosition = null)
+        readonly SlotCarContext context;
+
+        public RaceRepository(SlotCarContext context)
         {
-            using(var context = contextBuilder.CreateDbContext(null))
-            {
-                context.Tracks.Load();
+             this.context = context;
+        }
+
+        public (bool ok, string error) AddCarToRace(int carId, int raceId, int? startPosition = null)
+        { 
                 Race race = context.Races.Find(raceId);
                 Car car = context.Cars.Find(carId);
                 if(race!= null && car != null && race.ActualStart == null)
@@ -37,12 +41,12 @@ namespace BDSA2017.Assignment05
 
                 }
                 return (false, "Race or car not excisting or has started");
-            }
+            
         }
 
         public int Create(RaceCreateDTO race)
         {
-            using(var context = contextBuilder.CreateDbContext(null))
+            if (race != null)
             {
                 Track track = context.Tracks.Find(race.TrackId);
                 Race createdRace = new Race()
@@ -58,13 +62,13 @@ namespace BDSA2017.Assignment05
                 context.SaveChanges();
                 return createdRace.Id;
             }
+            return 0;
+            
             
         }
 
         public (bool ok, string error) Delete(int raceId)
-        {
-            using (var context = contextBuilder.CreateDbContext(null))
-            {
+        { 
                 Race race = context.Races.Find(raceId);
                 if (race?.ActualStart == null)
                 {
@@ -75,12 +79,12 @@ namespace BDSA2017.Assignment05
                 }
                 return (false, "Race was not found or hasnt started yet");
                 
-            }
+            
         }
 
         public void Dispose()
         {
-           
+            context.Dispose();
         }
 
         public IEnumerable<RaceListDTO> Read()
@@ -95,8 +99,6 @@ namespace BDSA2017.Assignment05
 
         public (bool ok, string error) RemoveCarFromRace(int carId, int raceId)
         {
-            using (var context = contextBuilder.CreateDbContext(null))
-            {
                 Race race = context.Races.Find(raceId);
                 Car car = context.Cars.Find(carId);
                 if (race != null && race.ActualStart == null && car!= null)
@@ -114,7 +116,7 @@ namespace BDSA2017.Assignment05
 
                 }
                 return (false, "Race not excisting or has started");
-            }
+           
         }
 
         public (bool ok, string error) Update(RaceCreateDTO race)

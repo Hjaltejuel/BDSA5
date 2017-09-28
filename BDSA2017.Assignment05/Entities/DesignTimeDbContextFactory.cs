@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using System.IO;
@@ -22,5 +23,18 @@ namespace BDSA2017.Assignment05.Entities
 
             return new SlotCarContext(builder.Options);
         }
+
+
+        public SlotCarContext CreateDbContext()
+        {
+            var connection = new SqliteConnection("DataSource=:memory:");
+            connection.Open();
+            var builder = new DbContextOptionsBuilder<SlotCarContext>().UseSqlite(connection).Options;
+
+            return  new SlotCarContext(builder);
+
+        }
+
+
     }
 }

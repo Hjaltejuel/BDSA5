@@ -11,7 +11,9 @@ namespace BDSA2017.Assignment05.Entities
 
         public SlotCarContext(DbContextOptions<SlotCarContext> options) : base(options)
         {
+            Database.EnsureCreated();
         }
+       
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

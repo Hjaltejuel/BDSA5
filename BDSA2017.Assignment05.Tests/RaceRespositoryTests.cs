@@ -5,22 +5,29 @@ using System.Linq;
 using System;
 using BDSA2017.Assignment05.Repositories;
 using BDSA2017.Assignment05.DTOs;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 
 namespace BDSA2017.Assignment05.Tests
 {
-    public class RaceRepositoryTests
+    public class RaceRepositoryTests : IDisposable
     {
-        DesignTimeDbContextFactory contextBuilder = new DesignTimeDbContextFactory();
-        RaceRepository raceRepository = new RaceRepository();
+        DesignTimeDbContextFactory contextBuilder;
+        RaceRepository raceRepository;
+        SlotCarContext context;
 
+        public RaceRepositoryTests()
+        {
+            contextBuilder = new DesignTimeDbContextFactory();
+            context = contextBuilder.CreateDbContext();
+            raceRepository = new RaceRepository(context);
 
-
-
+        }
 
         [Fact]
         public void TestRemoveCarFromRace()
         {
-            using (var context = contextBuilder.CreateDbContext(null))
+            using (raceRepository)
             {
                 Car car = new Car() { Driver = "Mads", Name = "Suzuki" };
                 var track = new Track()
@@ -50,9 +57,37 @@ namespace BDSA2017.Assignment05.Tests
             }
         }
         [Fact]
+        public void TestRemoveCarFromRaceReturnsCarDosntExist()
+        {
+            using (raceRepository)
+            {
+                Car car = new Car() { Driver = "Mads", Name = "Suzuki" };
+                var track = new Track()
+                {
+                    BestTime = 121213123,
+                    LengthInMeters = 123214,
+                    MaxCars = 50,
+                    Name = "RaceTrack"
+                };
+                var race = new Race()
+                {
+
+                    NumberOfLaps = 5,
+                    PlannedEnd = new DateTime(1920, 11, 11),
+                    PlannedStart = new DateTime(1920, 11, 11),
+                    Track = track
+                };
+                context.Add(race);
+                context.Add(car);
+
+                Assert.);
+
+            }
+        }
+        [Fact]
         public void TestAddCarToRace()
         {
-            using (var context = contextBuilder.CreateDbContext(null))
+            using (raceRepository)
             {
                 Car car = new Car() { Driver = "Mads", Name = "Suzuki" };
                 var track = new Track()
@@ -85,7 +120,7 @@ namespace BDSA2017.Assignment05.Tests
         [Fact]
         public void TestAddCarToRaceFalseRaceHasStarted()
         {
-            using (var context = contextBuilder.CreateDbContext(null))
+            using (raceRepository)
             {
                 Car car = new Car() { Driver = "Mads", Name = "Suzuki" };
                 var track = new Track()
@@ -116,7 +151,7 @@ namespace BDSA2017.Assignment05.Tests
         [Fact]
         public void TestCreateRace()
         {
-              using (var context = contextBuilder.CreateDbContext(null))
+              using (raceRepository)
             {
                 var track = new Track()
                 {
@@ -144,10 +179,32 @@ namespace BDSA2017.Assignment05.Tests
              
         }
         [Fact]
+        public void TestCreateRaceFailsStarted()
+        {
+            using (raceRepository)
+            {
+                var track = new Track()
+                {
+                    BestTime = 121213123,
+                    LengthInMeters = 123214,
+                    MaxCars = 50,
+                    Name = "RaceTrack"
+                };
+                context.Add(track);
+                context.SaveChanges();
+                RaceCreateDTO raceDTO = null;
+
+                Assert.Equal(0,raceRepository.Create(raceDTO));
+
+
+            }
+
+        }
+        [Fact]
         public void TestDeleteRace()
         {
             
-            using (var context = contextBuilder.CreateDbContext(null))
+            using (raceRepository)
             {
                 
                 var track = new Track()
@@ -179,8 +236,8 @@ namespace BDSA2017.Assignment05.Tests
         public void TestDeleteRace2()
         {
 
-            RaceRepository raceRepository = new RaceRepository();
-            using (var context = contextBuilder.CreateDbContext(null))
+            
+            using (raceRepository)
             {
 
                 var track = new Track()
@@ -205,6 +262,11 @@ namespace BDSA2017.Assignment05.Tests
             }
 
 
+        }
+
+        public void Dispose()
+        {
+            context.Dispose();
         }
     }
 }
